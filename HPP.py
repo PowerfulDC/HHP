@@ -121,7 +121,7 @@ class HPP(object):
 			frac = (Temp-0.18)/(0.22-0.18)
 		return frac
 	
-#change 2D to 3D directly
+#change 3D to 2D directly
 	def change3Dto2D(self):
 		OutPut2D = self.Block_txyz[:,:,:,self.NZ0//2,0:3].reshape(self.NT*self.NX0*self.NY0,3)
 		#np.savetxt(filepath+'new_bulk2D.dat',OutPut2D,\
@@ -239,6 +239,7 @@ class HPP(object):
 				self.Hotel[:,2] = y_tx
 			if self.Dim_Switch == 3:
 				zline = np.linspace(-np.floor(self.NZ/2)*self.DZ, np.floor(self.NZ/2)*self.DZ, self.NZ, endpoint=True)
+				blocksize = self.NX*self.NY*self.NZ*self.NT
 				self.Hotel[:,0] = np.repeat(tau,blocksize/self.NT)
 				self.Hotel[:,1] = np.repeat(x_t,self.NY*self.NZ)
 				self.Hotel[:,2] = np.repeat(y_tx,self.NZ)
@@ -260,6 +261,8 @@ class HPP(object):
 		if Dim_Switch == 3:
                 	np.savetxt('new_bulk3D.dat',OutPutData,\
                 	header = 'ED,VX,VY,VEta'+' NT=%i '%self.NT+' NX=%i'%self.NX+' NY=%i'%self.NY+' NZ=%i'%self.NZ)
+
+			print(OutPutData.shape)
 			print("new_bulk3D.dat Finished")
                 elif Dim_Switch == 2:
                 	np.savetxt('new_bulk2D.dat',OutPutData,\
@@ -295,7 +298,7 @@ def main(data_root_path, Nx,Ny, Nz, Deltx, Delty,Deltz,Event_number, Dim_switch,
     		if not os.path.exists(OutPutPath):
         	    os.makedirs(OutPutPath)
 
-	    	print('Initialized!!!!')
+	    	print('Initialized!-!-!-!-!')
 	  	doit = HPP(path=filepath)
 		
 		doit.FormatCFG(NX=Nx,NY=Ny,NZ=Nz,DeltX=Deltx,DeltY=Delty, \
@@ -310,10 +313,10 @@ def main(data_root_path, Nx,Ny, Nz, Deltx, Delty,Deltz,Event_number, Dim_switch,
 		   	doit.todo = doit.change3Dto2D()
 		   	doit.save()
 		   	continue
-		if Dim_Switch ==3 and NX == doit.NX0 and NY ==doit.NY0 and NZ == self.NZ0 \
-		   and DeltX == doit.DX0 and DeltY == doit.DY0 and DeltZ == self.DeltZ:
+		if Dim_Switch ==3 and NX == doit.NX0 and NY ==doit.NY0 and NZ == doit.NZ0 \
+		   and DeltX == doit.DX0 and DeltY == doit.DY0 and DeltZ == doit.DZ0:
 			print('Start to add colums to file directly!')
-			doit.todo = doit.Block_txyz.reshape(self.NT*self.NX0*self.NY0*self.NZ0,4)
+			doit.todo = doit.Block_txyz.reshape(doit.NT*doit.NX0*doit.NY0*doit.NZ0,4)
 			doit.save()
 			continue
 
@@ -410,6 +413,7 @@ if __name__ == '__main__':
     DeltX = cfg.DX
     DeltY = cfg.DY
     DeltZ = cfg.DZ
+    print(DeltX,DeltY,DeltZ)
     Event_Number = cfg.EBE_N
     Dim_Switch = cfg.Dim_Switch
     Grids_Switch =cfg.Grids_Switch
